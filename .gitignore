@@ -1,0 +1,6 @@
+/target/
+.DS_Store
+/.idea/
+/.settings/
+/WebContent/WEB-INF/classes
+*.iml
