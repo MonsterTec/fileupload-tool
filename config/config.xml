@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+
+    <Config>
+
+        <!-- 文件存储接口 -->
+        <url>http://127.0.0.1:4869/dfs/put</url>
+
+        <!-- 需要扫描的根目录 -->
+        <basePath>D:\files</basePath>
+
+        <!-- 可添加多个value，值为需要上传的文件的扩展名 -->
+        <suffix>
+            <value>txt</value>
+            <value>pptx</value>
+        </suffix>
+
+        <!-- 上传文件接口的口令验证 -->
+        <token>12345</token>
+
+        <!-- 上传区域代码 -->
+        <areaCode>330105</areaCode>
+
+    </Config>
+
+</Configuration>

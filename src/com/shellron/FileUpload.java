@@ -1,80 +1,91 @@
-package  com.shellron;
+package com.shellron;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
 
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * 文件上传类，目录的遍历
+ *
+ * @author: Monster
+ *
+ * Date: 2017-12-6
+ */
 public class FileUpload {
 
     public static final okhttp3.MediaType MEDIA_TYPE_MARKDOWN = okhttp3.MediaType.parse("text/x-markdown; charset=utf-8");
 
-    // 上传文件api
-    private String api;
-
-    // 需要扫描的基础目录
-    private String basePath;
-
-    // 需要上传的文件类型
-    private String[] suffix;
-
-    // api的口令验证
-    private String token;
-
     // Okhttp3 客户端实例
-    static private OkHttpClient client;
+    private static OkHttpClient client;
 
+    // 初始化 Okhttp3 客户端实例
     static {
         client = new OkHttpClient();
     }
 
-    public void setApi(String api) {
-        this.api = api;
+    // 配置文件信息
+    private Config config;
+
+    public FileUpload() {
+        super();
     }
 
-    public void setBasePath(String basePath) {
-        this.basePath = basePath;
+    public FileUpload(Config config) {
+        this.config = config;
     }
 
-    public void setSuffix(String[] suffix) {
-        this.suffix = suffix;
+    public Config getConfig() {
+        return config;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setConfig(Config config) {
+        this.config = config;
     }
 
     // 递归遍历目录与文件
-    public void getDirectory(File file) {
+    public void start(File dir) {
 
-        File[] flist = file.listFiles();
+        File[] flist = dir.listFiles();
 
         if (flist == null || flist.length == 0) {
             return;
         }
 
-        for (File f : flist) {
-            if (f.isDirectory()) {
-                //这里将列出所有的文件夹
-                System.out.println("Dir==>" + f.getAbsolutePath());
-                getDirectory(f);
+        for (File file : flist) {
+
+            if (file.isDirectory()) {
+
+                // 这里将列出所有的文件夹
+                System.out.println("Dir ==> " + file.getAbsolutePath());
+                start(file);
+
             } else {
-                //这里将列出所有的文件
-                System.out.println("file==>" + f.getAbsolutePath());
 
-                for(String suffix: this.suffix){
+                for (String suffix : config.getSuffix()) {
 
-                    String fileName = f.getName();
+                    // 获取当前文件的文件名
+                    String fileName = file.getName();
 
+                    // 若当前的文件类型为允许上传的类型，则上传该文件，否则跳过该文件
                     if(fileName.substring(fileName.lastIndexOf(".") + 1).equals(suffix)){
-                        uploadFiles(f);
+
+                        // 这里将列出所有需要上传文件
+                        System.out.println("File ==> " + file.getAbsolutePath());
+                        uploadFiles(file);
+
                     } else {
                         continue;
                     }
 
                 }
+
             }
+
         }
+
     }
 
     // 获取文件的相对路径
@@ -83,7 +94,7 @@ public class FileUpload {
         String path;
 
         path = file.getAbsolutePath();
-        path = path.replace(this.basePath,"");
+        path = path.replace(config.getBasePath(), "");
         path = path.replace('\\', '/');
 
         return path;
@@ -94,16 +105,17 @@ public class FileUpload {
 
         Response response;
         String responseStr;
+        String message;
 
         // 设置请求参数与需要上传的文件
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("token", token)
-                .addFormDataPart("filePath", "/330105" + getRelativePath(file))
+                .addFormDataPart("token", config.getToken())
+                .addFormDataPart("filePath", "/" + config.getAreaCode() + getRelativePath(file))
                 .addFormDataPart("file", file.getName(), RequestBody.create(MEDIA_TYPE_MARKDOWN, file))
                 .build();
 
         Request request = new Request.Builder()
-                .url(api)
+                .url(config.getUrl())
                 .post(requestBody)
                 .build();
 
@@ -113,15 +125,30 @@ public class FileUpload {
             response = client.newCall(request).execute();
 
             if (response.isSuccessful()) {
+
                 // 获得Http响应
                 responseStr = response.body().string();
-                System.out.println(responseStr);
+
+                JSONObject object = JSON.parseObject(responseStr);
+                boolean status = object.getBooleanValue("status");
+
+                if (status) {
+                    message = "Message : Upload is completed!";
+                } else {
+                    message = "Error : " + object.getString("message");
+                }
+
+                System.out.println(message);
 
             } else {
+                message = "Error : Upload is failed!";
+                System.out.println(message);
                 throw new IOException("Unexpected code " + response);
             }
 
         } catch (IOException e) {
+            message = "Error : Upload is failed!";
+            System.out.println(message);
             e.printStackTrace();
         }
 
