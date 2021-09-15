@@ -8,36 +8,31 @@
     <artifactId>fileUploadTool</artifactId>
     <version>1.0</version>
 
-    <dependencies>
+    <properties>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+    </properties>
 
+    <dependencies>
         <!-- okhttp3 -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>3.9.1</version>
+            <version>4.9.1</version>
         </dependency>
-
         <!-- FastJson -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.13</version>
+            <version>1.2.78</version>
         </dependency>
-
         <!-- Dom4j -->
         <dependency>
-            <groupId>dom4j</groupId>
+            <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
+            <version>2.1.3</version>
         </dependency>
-
-        <!-- jaxen -->
-        <dependency>
-            <groupId>jaxen</groupId>
-            <artifactId>jaxen</artifactId>
-            <version>1.1.6</version>
-        </dependency>
-
     </dependencies>
 
 </project>

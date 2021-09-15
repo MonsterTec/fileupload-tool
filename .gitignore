@@ -1,6 +1,5 @@
-/target/
 .DS_Store
+*.iml
 /.idea/
 /.settings/
-/WebContent/WEB-INF/classes
-*.iml
+/target/
